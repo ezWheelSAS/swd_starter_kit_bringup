@@ -190,9 +190,7 @@ include_directories(
 
 install(
   FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit_core.launch
-  ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit_idec_se2l.launch
-  ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit_sick_nanoscan3.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit.launch
   ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_hector.launch
   ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_lama.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch

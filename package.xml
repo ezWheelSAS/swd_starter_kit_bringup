@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>swd_starter_kit_bringup</name>
-  <version>0.1.2</version>
+  <version>0.1.0</version>
   <description>The swd_starter_kit_bringup package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
@@ -29,8 +29,8 @@
 
   <exec_depend>hector_mapping</exec_depend>
   <exec_depend>urg_node</exec_depend>
-  <exec_depend>sick_safetyscanners</exec_depend>
   <exec_depend>joy</exec_depend>
+  <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>tf2_web_republisher</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
