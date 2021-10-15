@@ -68,6 +68,6 @@
   </node>
 
   <!-- Robot manager -->
-  <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager.py" />
+  <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager" />
 
 </launch>
