@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(ezw_bringup)
+project(swd_starter_kit_bringup)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -187,6 +187,14 @@ include_directories(
 #   # myfile2
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
+
+install(
+  FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_hector.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_lama.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
 
 #############
 ## Testing ##
