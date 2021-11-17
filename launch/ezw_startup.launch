@@ -1,24 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="master_ip" value="192.168.2.200" />
-  <arg name="laser1_sensor_ip" value="192.168.2.230" />
+  <arg name="master_ip" value="10.0.0.1" />
+  <arg name="laser1_sensor_ip" value="10.0.0.5" />
   <arg name="laser1_prefix" value="laser_1" />
   <arg name="joy_config" value="xbox" />
 
   <!-- EZW ROS Controllers (diff-drive) -->
-  <include file="$(find ezw_ros_controllers)/launch/diff_drive_controller.launch"/>
-
-  <!-- PILZ -->
-  <!--
-  <include file="$(find psen_scan_v2)/launch/psen_scan_v2.launch">
-    <arg name="rviz" value="false" />
-    <arg name="sensor_ip" value="$(arg laser1_sensor_ip)" />
-    <arg name="tf_prefix" value="$(arg laser1_prefix)" />
-  </include>
-
-  <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0 0 0 0 0 base_link laser_1_mount_link 100"/>
-  -->
-  <!-- /PILZ -->
+  <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
   <!-- IDEC -->
   <node pkg="urg_node" name="urg_node" type="urg_node">
@@ -31,9 +19,10 @@
   <!-- /IDEC -->
 
   <!--
-  <include file="$(dirname)/mapping_hector.launch"/>
   <include file="$(dirname)/mapping_lama.launch"/>
   -->
+
+  <include file="$(dirname)/mapping_hector.launch"/>
 
   <!--
   <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 odom base_link 100"/>
@@ -42,6 +31,7 @@
   <!-- Websocket bridge (for HMI) -->
   <node pkg="rosbridge_server" name="rosbridge_websocket" type="rosbridge_websocket">
     <param name="address" value="$(arg master_ip)" />
+    <param name="use_compression" value="true" />
   </node>
 
   <node pkg="tf2_web_republisher" name="tf2_web_republisher" type="tf2_web_republisher" />
@@ -59,12 +49,13 @@
     <param name="axis_linear" value="1" />
     <param name="axis_angular" value="3" />
     <param name="scale_linear" value="1.0" />
-    <param name="scale_angular" value="-0.5" />
+    <param name="scale_angular" value="0.7" />
     <param name="scale_linear_turbo" value="1.3" />
-    <param name="scale_angular_turbo" value="-2.0" />
-    <remap from="/cmd_vel" to="/diff_drive_controller/cmd_vel" />
+    <param name="scale_angular_turbo" value="1.4" />
+    <remap from="/cmd_vel" to="/swd_diff_drive_controller/cmd_vel" />
   </node>
 
   <!-- Robot manager -->
-  <node pkg="robot_manager" name="robot_manager" type="robot_manager.py" />
+  <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager" />
+
 </launch>
