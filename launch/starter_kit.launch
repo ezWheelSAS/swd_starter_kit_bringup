@@ -1,11 +1,17 @@
 <?xml version="1.0"?>
+
 <launch>
+
+  <!-- Default values for arguments -->
   <arg name="master_ip" value="10.0.0.1" />
   <arg name="laser1_sensor_ip" value="10.0.0.5" />
   <arg name="laser1_prefix" value="laser_1" />
   <arg name="joy_config" value="xbox" />
-
-  <!-- EZW ROS Controllers (diff-drive) -->
+  <arg name="nav_mode" value="localization" />
+  <arg name="mapping_algo" value="hector" />
+  <arg name="localization_algo" value="amcl" />
+  
+  <!-- SWD ROS Controllers (diff-drive) -->
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
   <!-- PILZ -->
@@ -24,21 +30,48 @@
   <node pkg="urg_node" name="urg_node" type="urg_node">
     <param name="ip_address" value="$(arg laser1_sensor_ip)" />
     <param name="frame_id" value="$(arg laser1_prefix)" />
-    <remap from="/scan" to="/$(arg laser1_prefix)/scan" />
+
+    <!-- Remap topic names, /scan_idec is the raw data -->
+    <remap from="/scan" to="/scan_idec" />
   </node>
 
   <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0.04 0 0 0 0 0 base_link laser_1 100" />
   <!-- /IDEC -->
 
-  <!--
-  <include file="$(dirname)/mapping_lama.launch"/>
-  -->
-
-  <include file="$(dirname)/mapping_hector.launch"/>
+  <!-- Filter LiDAR ranges -->
+  <include file="$(dirname)/laser_filter.launch"/>
 
   <!--
-  <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 odom base_link 100"/>
+      Load launch files of different navigation modes
+      Currently, we supports two main modes:
+      - mapping: A mode for creating new maps for unknown environments.
+        This mode supports two algotithms (mapping_algo argument):
+        - lama: to uses the IRIS LAMA SLAM
+        - hector: to use hector_mapping
+
+      - localization: A mode which provides localization for a robot in a known map.
+        This mode supports the following algorithms (localization_algo argument):
+        - amcl: to use the Adaptive Monte Carlo Localization (AMCL)
   -->
+  <group if="$(eval arg('nav_mode') == 'mapping')">
+    <group if="$(eval arg('mapping_algo') == 'hector')">
+      <include file="$(dirname)/mapping_hector.launch"/>
+    </group>
+
+    <group if="$(eval arg('mapping_algo') == 'lama')">
+      <include file="$(dirname)/mapping_lama.launch"/>
+    </group>
+  </group>
+
+  <group if="$(eval arg('nav_mode') == 'localization')">
+    <group if="$(eval arg('localization_algo') == 'amcl')">
+      <include file="$(dirname)/localization_amcl.launch"/>
+
+      <node pkg="map_server" name="map_server" type="map_server" args="$(find swd_starter_kit_bringup)/assets/map_box2_v2.yaml">
+        <param name="frame_id" value="map" />
+      </node>
+    </group>
+  </group>
 
   <!-- Websocket bridge (for HMI) -->
   <node pkg="rosbridge_server" name="rosbridge_websocket" type="rosbridge_websocket">
@@ -64,10 +97,26 @@
     <param name="scale_angular" value="0.7" />
     <param name="scale_linear_turbo" value="1.3" />
     <param name="scale_angular_turbo" value="1.4" />
-    <remap from="/cmd_vel" to="/swd_diff_drive_controller/cmd_vel" />
+    <remap from="/cmd_vel" to="/joy_vel" />
+  </node>
+
+  <node pkg="topic_tools" name="mux_cmd_vel" type="mux"
+        args="/swd_diff_drive_controller/cmd_vel /key_vel /nav_vel /joy_vel /remote_vel" >
+    <param name="mux" value="mux_cmd_vel" />
   </node>
 
   <!-- Robot manager -->
   <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager" />
+
+  <!-- Republish Pose from TF tree -->
+  <node pkg="swd_robot_manager" name="pose_from_tf" type="pose_from_tf" />
+
+  <!-- Robot state publisher, using the URDF model -->
+  <!--
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" >
+    <param name="robot_description" textfile="$(find swd_starter_kit_description)/urdf/swd_starter_kit.urdf" />
+  </node>
+  -->
 
 </launch>
