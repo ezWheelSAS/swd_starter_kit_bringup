@@ -10,7 +10,8 @@
   <arg name="nav_mode" value="localization" />
   <arg name="mapping_algo" value="hector" />
   <arg name="localization_algo" value="amcl" />
-  
+  <arg name="nav_map" value="map_box2_v2" />
+
   <!-- SWD ROS Controllers (diff-drive) -->
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
@@ -52,25 +53,36 @@
       - localization: A mode which provides localization for a robot in a known map.
         This mode supports the following algorithms (localization_algo argument):
         - amcl: to use the Adaptive Monte Carlo Localization (AMCL)
+        - lama: to use the loc2d_ros from LAMA SLAM package
   -->
   <group if="$(eval arg('nav_mode') == 'mapping')">
+    <!-- Hector mapping -->
     <group if="$(eval arg('mapping_algo') == 'hector')">
       <include file="$(dirname)/mapping_hector.launch"/>
     </group>
 
+    <!-- LAMA SLAM 2D mapping -->
     <group if="$(eval arg('mapping_algo') == 'lama')">
       <include file="$(dirname)/mapping_lama.launch"/>
     </group>
   </group>
 
   <group if="$(eval arg('nav_mode') == 'localization')">
+    <!-- AMCL localization -->
     <group if="$(eval arg('localization_algo') == 'amcl')">
       <include file="$(dirname)/localization_amcl.launch"/>
-
-      <node pkg="map_server" name="map_server" type="map_server" args="$(find swd_starter_kit_bringup)/assets/map_box2_v2.yaml">
-        <param name="frame_id" value="map" />
-      </node>
     </group>
+
+    <!-- LAMA loc2d_ros localization -->
+    <group if="$(eval arg('localization_algo') == 'lama')">
+      <include file="$(dirname)/localization_lama.launch"/>
+    </group>
+
+    <!-- Load map to be used for localization -->
+    <node pkg="map_server" name="map_server" type="map_server"
+          args="$(find swd_starter_kit_bringup)/assets/$(arg nav_map).yaml">
+      <param name="frame_id" value="map" />
+    </node>
   </group>
 
   <!-- Websocket bridge (for HMI) -->
