@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>swd_starter_kit_bringup</name>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>The swd_starter_kit_bringup package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
