@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 
 <launch>
-
   <!-- Default values for arguments -->
   <arg name="master_ip"       default="10.0.0.1"/>
   <!-- lidar_sensor = [idec_se2l | sick_nanoscan3 | pilz_psen] -->
@@ -84,8 +83,7 @@
     <param name="autorepeat_rate" value="50" />
   </node>
 
-  <node pkg="teleop_twist_joy" name="teleop_twist_joy"
-  type="teleop_node">
+  <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
     <param name="joy_config" value="$(arg joy_config)" />
     <param name="enable_button" value="5" />
     <param name="enable_turbo_button" value="6" />
@@ -95,11 +93,12 @@
     <param name="scale_angular" value="0.7" />
     <param name="scale_linear_turbo" value="1.3" />
     <param name="scale_angular_turbo" value="1.4" />
-    <remap from="/cmd_vel" to="/joy_vel" />
+    <remap from="/cmd_vel" to="/joy_cmd_vel" />
   </node>
 
+  <!-- Create a mux for cmd_vel -->
   <node pkg="topic_tools" name="mux_cmd_vel" type="mux"
-        args="/swd_diff_drive_controller/cmd_vel /key_vel /nav_vel /joy_vel /remote_vel" >
+        args="/swd_diff_drive_controller/cmd_vel /joy_cmd_vel /key_cmd_vel /remote_cmd_vel /nav_cmd_vel" >
     <param name="mux" value="mux_cmd_vel" />
   </node>
 
@@ -121,5 +120,4 @@
     <param name="robot_description" textfile="$(find swd_starter_kit_description)/urdf/swd_starter_kit.urdf" />
   </node>
   -->
-
 </launch>

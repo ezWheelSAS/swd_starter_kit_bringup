@@ -25,15 +25,17 @@
   <author email="a.bougouffa@ez-wheel.com">Abdelhak BOUGOUFFA</author>
 
   <exec_depend>hector_mapping</exec_depend>
-  <exec_depend>amcl</exec_depend>
+  <exec_depend>gmapping</exec_depend>
   <exec_depend>iris_lama_ros</exec_depend>
+  <exec_depend>amcl</exec_depend>
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>laser_filters</exec_depend>
-  <exec_depend>urg_node</exec_depend>
-  <exec_depend>joy</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
   <exec_depend>tf2_web_republisher</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>sick_safetyscanners</exec_depend>
+  <exec_depend>urg_node</exec_depend>
+  <exec_depend>joy</exec_depend>
 
   <!-- The *depend tags are used to specify dependencies -->
   <!-- Dependencies can be catkin packages or system dependencies -->
