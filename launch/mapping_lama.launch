@@ -1,22 +1,24 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="base_frame" default="base_link"/>
-  <arg name="global_frame" default="map"/>
-  <arg name="odom_frame" default="odom"/>
-  <arg name="scan_topic" default="/laser_1/scan"/>
-  
+  <arg name="base_frame_id" default="base_link"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="odom_frame_id" default="odom"/>
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="out_pose_topic" default="pose"/>
+
   <node pkg="iris_lama_ros" type="slam2d_ros" name="slam2d_mapping" output="screen">
-    
     <!-- Frame names -->
     <param name="scan_topic" value="$(arg scan_topic)" />
-    <param name="base_frame_id" value="$(arg base_frame)" />
-    <param name="odom_frame_id" value="$(arg odom_frame)" />
-    <param name="global_frame_id" value="$(arg global_frame)" />
-    
+    <param name="base_frame_id" value="$(arg base_frame_id)" />
+    <param name="odom_frame_id" value="$(arg odom_frame_id)" />
+    <param name="global_frame_id" value="$(arg global_frame_id)" />
+
     <!-- Map size / start point -->
     <param name="resolution" value="0.050"/>
-    
+    <param name="transform_tolerance" value="0.5" />
+    <param name="mrange" value="30" />
+
     <!-- Advertising config --> 
     <param name="map_publish_period" value="3"/>
   </node>

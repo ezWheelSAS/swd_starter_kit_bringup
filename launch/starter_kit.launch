@@ -3,8 +3,17 @@
 <launch>
 
   <!-- Default values for arguments -->
-  <arg name="master_ip" value="10.0.0.1" />
-  <arg name="joy_config" value="xbox" />
+  <arg name="master_ip"       default="10.0.0.1" />
+  <!-- lidar_sensor = [idec_se2l | sick_nanoscan3 | pilz_psen] -->
+  <arg name="lidar_sensor"    default="idec_se2l"/>
+  <arg name="lidar_sensor_ip" default="10.0.0.5" />
+  <arg name="scan_prefix"     default="laser_1"/>
+  <arg name="scan_topic"      default="/$(arg scan_prefix)/scan"/>
+  <arg name="scan_frame_id"   default="$(arg scan_prefix)"/>
+  <arg name="odom_frame_id"   default="odom"/>
+  <arg name="base_frame_id"   default="base_link"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="joy_config"      default="xbox" />
 
   <!-- Navigation parameters
     - nav_mode = [localization | mapping]
@@ -12,15 +21,24 @@
     - nav_algo = [hector | lama]     if (nav_mode == mapping)
     - nav_map = MAP_NAME {files saved in ../assets/MAP_NAME.yaml}
   -->
-  <arg name="nav_mode" value="localization" />
-  <arg name="nav_algo" value="amcl" />
-  <arg name="nav_map" value="map_box2_v2" />
+  <arg name="nav_mode" default="localization" />
+  <arg name="nav_algo" default="amcl" />
+  <arg name="nav_map"  default="map_box2_v2" />
 
   <!-- SWD ROS Controllers (diff-drive) -->
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
   <!-- Filter LiDAR ranges -->
-  <include file="$(dirname)/laser_filter.launch"/>
+  <include file="$(dirname)/laser_filter.launch">
+    <arg name="scan_prefix" value="$(arg scan_prefix)"/>
+  </include>
+
+  <!-- Include LiDAR launch file according to lidar_sensor argument -->
+  <include file="$(dirname)/lidar_$(arg lidar_sensor).launch">
+    <arg name="sensor_ip" value="$(arg lidar_sensor_ip)" />
+    <arg name="master_ip" value="$(arg master_ip)" />
+    <arg name="prefix"    value="$(arg scan_prefix)" />
+  </include>
 
   <!--
       Load launch files of different navigation modes
@@ -35,30 +53,16 @@
         - amcl: to use the Adaptive Monte Carlo Localization (AMCL)
         - lama: to use the loc2d_ros from LAMA SLAM package
   -->
-  <group if="$(eval arg('nav_mode') == 'mapping')">
-    <!-- Hector mapping -->
-    <group if="$(eval arg('nav_algo') == 'hector')">
-      <include file="$(dirname)/mapping_hector.launch"/>
-    </group>
+  <include file="$(dirname)/$(arg nav_mode)_$(arg nav_algo).launch">
+    <arg name="scan_topic"       value="$(arg scan_topic)"/>
+    <arg name="odom_frame_id"    value="$(arg odom_frame_id)"/>
+    <arg name="base_frame_id"    value="$(arg base_frame_id)"/>
+    <arg name="global_frame_id"  value="$(arg global_frame_id)"/>
+    <arg name="out_pose_topic"   value="amcl_pose"/>
+  </include>
 
-    <!-- LAMA SLAM 2D mapping -->
-    <group if="$(eval arg('nav_algo') == 'lama')">
-      <include file="$(dirname)/mapping_lama.launch"/>
-    </group>
-  </group>
-
+  <!-- Load map to be used for localization -->
   <group if="$(eval arg('nav_mode') == 'localization')">
-    <!-- AMCL localization -->
-    <group if="$(eval arg('nav_algo') == 'amcl')">
-      <include file="$(dirname)/localization_amcl.launch"/>
-    </group>
-
-    <!-- LAMA loc2d_ros localization -->
-    <group if="$(eval arg('nav_algo') == 'lama')">
-      <include file="$(dirname)/localization_lama.launch"/>
-    </group>
-
-    <!-- Load map to be used for localization -->
     <node pkg="map_server" name="map_server" type="map_server"
           args="$(find swd_starter_kit_bringup)/assets/$(arg nav_map).yaml">
       <param name="frame_id" value="map" />

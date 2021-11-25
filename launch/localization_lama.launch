@@ -5,12 +5,18 @@
   <arg name="initial_pose_y" default="0.0" />
   <arg name="initial_yaw" default="0.0" />
 
+  <arg name="base_frame_id" default="base_link"/>
+  <arg name="global_frame_id" default="map"/>
+  <arg name="odom_frame_id" default="odom"/>
+  <arg name="scan_topic" default="/scan"/>
+  <arg name="out_pose_topic" default="pose"/>
+
   <node pkg="iris_lama_ros" type="loc2d_ros" name="loc2d_ros" output="screen">
     <!-- Localization parameters -->
-    <param name="global_frame_id" value="map" />
-    <param name="odom_frame_id" value="odom" />
-    <param name="base_frame_id" value="base_link" />
-    <param name="scan_topic" value="scan" />
+    <param name="global_frame_id" value="$(arg global_frame_id)" />
+    <param name="odom_frame_id" value="$(arg odom_frame_id)" />
+    <param name="base_frame_id" value="$(arg base_frame_id)" />
+    <param name="scan_topic" value="$(arg scan_topic)" />
     <param name="initial_pos_x" value="$(arg initial_pose_x)" />
     <param name="initial_pos_y" value="$(arg initial_pose_y)" />
     <param name="initial_pos_a" value="$(arg initial_yaw)" />
@@ -19,6 +25,7 @@
     <param name="use_map_topic" value="true" />
     <param name="first_map_only" value="true" />
     <param name="use_pose_on_new_map" value="false" />
+    <param name="mrange" value="30" />
     <param name="d_thresh" value="0.1" />
     <param name="a_thresh" value="0.2" />
     <param name="l2_max" value="0.5" />
@@ -32,6 +39,6 @@
     <param name="do_global_loc" value="false" />
 
     <!-- Topic names remapping -->
-    <remap from="pose" to="amcl_pose" />
+    <remap from="pose" to="$(arg out_pose_topic)" />
   </node>
 </launch>

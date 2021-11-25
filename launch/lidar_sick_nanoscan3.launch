@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="sensor_ip" default="10.0.0.5" />
+  <arg name="master_ip" default="10.0.0.1" />
+  <arg name="prefix"    default="laser_1" />
+
+  <!-- SICK nanoScan3 -->
+  <node pkg="sick_safetyscanners" type="sick_safetyscanners_node" name="sick_safetyscanners" ns="sick_safetyscanners">
+      <param name="sensor_ip" value="$(arg sensor_ip)" />
+      <param name="host_ip" value="$(arg master_ip)" />
+      <param name="frame_id" value="$(arg prefix)" />
+
+      <remap from="/sick_safetyscanners/scan" to="/$(arg prefix)/scan_raw" />
+  </node>
+
+  <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0.04 0 0 0 0 0 base_link laser_1 100" />
+</launch>
