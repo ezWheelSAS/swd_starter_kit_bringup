@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 
 <launch>
+  <arg name="laser1_prefix" value="laser_1" />
+
   <node pkg="laser_filters" type="scan_to_scan_filter_chain"
       name="laser_filter">
     <rosparam command="load" file="$(find swd_starter_kit_bringup)/assets/lidar_filtering_config.yaml" />
-    <remap from="scan_filtered" to="/laser_1/scan" />
-    <remap from="scan" to="/scan_idec" />
+
+    <remap from="scan_filtered" to="$(arg laser1_prefix)/scan" />
+    <remap from="scan" to="/scan_raw" />
   </node>
 </launch>
 

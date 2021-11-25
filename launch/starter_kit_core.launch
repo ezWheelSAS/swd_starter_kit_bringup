@@ -1,21 +1,74 @@
 <?xml version="1.0"?>
+
 <launch>
+
+  <!-- Default values for arguments -->
   <arg name="master_ip" value="10.0.0.1" />
   <arg name="joy_config" value="xbox" />
 
-  <!-- EZW ROS Controllers (diff-drive) -->
+  <!-- Navigation parameters
+    - nav_mode = [localization | mapping]
+    - nav_algo = [amcl | lama]       if (nav_mode == localization)
+    - nav_algo = [hector | lama]     if (nav_mode == mapping)
+    - nav_map = MAP_NAME {files saved in ../assets/MAP_NAME.yaml}
+  -->
+  <arg name="nav_mode" value="localization" />
+  <arg name="nav_algo" value="amcl" />
+  <arg name="nav_map" value="map_box2_v2" />
+
+  <!-- SWD ROS Controllers (diff-drive) -->
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
-  <include file="$(dirname)/mapping_hector.launch"/>
+  <!-- Filter LiDAR ranges -->
+  <include file="$(dirname)/laser_filter.launch"/>
 
-  <!-- for test -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 odom base_link 100"/>-->
+  <!--
+      Load launch files of different navigation modes
+      Currently, we supports two main modes:
+      - mapping: A mode for creating new maps for unknown environments.
+        This mode supports two algotithms (nav_algo argument):
+        - lama: to uses the IRIS LAMA SLAM
+        - hector: to use hector_mapping
+
+      - localization: A mode which provides localization for a robot in a known map.
+        This mode supports the following algorithms (nav_algo argument):
+        - amcl: to use the Adaptive Monte Carlo Localization (AMCL)
+        - lama: to use the loc2d_ros from LAMA SLAM package
+  -->
+  <group if="$(eval arg('nav_mode') == 'mapping')">
+    <!-- Hector mapping -->
+    <group if="$(eval arg('nav_algo') == 'hector')">
+      <include file="$(dirname)/mapping_hector.launch"/>
+    </group>
+
+    <!-- LAMA SLAM 2D mapping -->
+    <group if="$(eval arg('nav_algo') == 'lama')">
+      <include file="$(dirname)/mapping_lama.launch"/>
+    </group>
+  </group>
+
+  <group if="$(eval arg('nav_mode') == 'localization')">
+    <!-- AMCL localization -->
+    <group if="$(eval arg('nav_algo') == 'amcl')">
+      <include file="$(dirname)/localization_amcl.launch"/>
+    </group>
+
+    <!-- LAMA loc2d_ros localization -->
+    <group if="$(eval arg('nav_algo') == 'lama')">
+      <include file="$(dirname)/localization_lama.launch"/>
+    </group>
+
+    <!-- Load map to be used for localization -->
+    <node pkg="map_server" name="map_server" type="map_server"
+          args="$(find swd_starter_kit_bringup)/assets/$(arg nav_map).yaml">
+      <param name="frame_id" value="map" />
+    </node>
+  </group>
 
   <!-- Websocket bridge (for HMI) -->
   <node pkg="rosbridge_server" name="rosbridge_websocket" type="rosbridge_websocket">
     <param name="address" value="$(arg master_ip)" />
     <param name="use_compression" value="true" />
-    <param name="params_glob" value="[]"/>
   </node>
 
   <node pkg="tf2_web_republisher" name="tf2_web_republisher" type="tf2_web_republisher" />
@@ -25,7 +78,8 @@
     <param name="autorepeat_rate" value="50" />
   </node>
 
-  <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
+  <node pkg="teleop_twist_joy" name="teleop_twist_joy"
+  type="teleop_node">
     <param name="joy_config" value="$(arg joy_config)" />
     <param name="enable_button" value="5" />
     <param name="enable_turbo_button" value="6" />
@@ -35,10 +89,31 @@
     <param name="scale_angular" value="0.7" />
     <param name="scale_linear_turbo" value="1.3" />
     <param name="scale_angular_turbo" value="1.4" />
-    <remap from="/cmd_vel" to="/swd_diff_drive_controller/cmd_vel" />
+    <remap from="/cmd_vel" to="/joy_vel" />
+  </node>
+
+  <node pkg="topic_tools" name="mux_cmd_vel" type="mux"
+        args="/swd_diff_drive_controller/cmd_vel /key_vel /nav_vel /joy_vel /remote_vel" >
+    <param name="mux" value="mux_cmd_vel" />
   </node>
 
   <!-- Robot manager -->
   <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager" />
+
+  <!-- Republish Pose from TF tree -->
+  <node pkg="swd_robot_manager" name="pose_from_tf" type="pose_from_tf">
+    <param name="base_frame" value="base_link" />
+    <param name="ref_frame" value="map" />
+    <param name="publish_rate" value="20.0" />
+    <param name="topic_name" value="/pose_from_tf" />
+  </node>
+
+  <!-- Robot state publisher, using the URDF model -->
+  <!--
+  <node name="robot_state_publisher" pkg="robot_state_publisher"
+        type="robot_state_publisher" >
+    <param name="robot_description" textfile="$(find swd_starter_kit_description)/urdf/swd_starter_kit.urdf" />
+  </node>
+  -->
 
 </launch>
