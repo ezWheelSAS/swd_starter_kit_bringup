@@ -191,8 +191,14 @@ include_directories(
 install(
   FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/launch/starter_kit.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/lidar_idec_se2l.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/lidar_pilz_psen.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/lidar_sick_nanoscan3.launch
   ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_hector.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_gmapping.launch
   ${CMAKE_CURRENT_SOURCE_DIR}/launch/mapping_lama.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/localization_lama.launch
+  ${CMAKE_CURRENT_SOURCE_DIR}/launch/localization_amcl.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
 
