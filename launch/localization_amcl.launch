@@ -20,7 +20,6 @@
     <param name="update_min_a"              value="0.2"/>
     <param name="resample_interval"         value="1"/>
     <param name="selective_resampling"      value="true"/>
-    <!-- Increase tolerance because the computer can get quite busy -->
     <param name="transform_tolerance"       value="1.0"/>
     <param name="recovery_alpha_slow"       value="0.0"/>
     <param name="recovery_alpha_fast"       value="0.0"/>
@@ -33,6 +32,7 @@
     <param name="odom_frame_id"             value="$(arg odom_frame_id)"/>
     <param name="base_frame_id"             value="$(arg base_frame_id)"/>
     <param name="global_frame_id"           value="$(arg global_frame_id)"/>
+    <param name="tf_broadcast"              value="true"/>
 
     <!-- Odometry model parameters -->
     <param name="odom_model_type"           value="diff"/>
@@ -40,11 +40,6 @@
     <param name="odom_alpha2"               value="0.4"/>
     <param name="odom_alpha3"               value="0.4"/>
     <param name="odom_alpha4"               value="0.4"/>
-    <param name="tf_broadcast"              value="true"/>
-    <!-- alpha5 is not applicable on the "diff" model -->
-    <!--
-    <param name="odom_alpha5"               value="0.4"/>
-    -->
 
     <!-- Laser model parameters -->
     <param name="laser_model_type"          value="likelihood_field"/>
