@@ -3,27 +3,29 @@
 <launch>
 
   <!-- Default values for arguments -->
-  <arg name="master_ip"       default="10.0.0.1" />
+  <arg name="master_ip"       default="10.0.0.1"/>
   <!-- lidar_sensor = [idec_se2l | sick_nanoscan3 | pilz_psen] -->
   <arg name="lidar_sensor"    default="idec_se2l"/>
-  <arg name="lidar_sensor_ip" default="10.0.0.5" />
+  <arg name="lidar_sensor_ip" default="10.0.0.5"/>
   <arg name="scan_prefix"     default="laser_1"/>
   <arg name="scan_topic"      default="/$(arg scan_prefix)/scan"/>
   <arg name="scan_frame_id"   default="$(arg scan_prefix)"/>
   <arg name="odom_frame_id"   default="odom"/>
   <arg name="base_frame_id"   default="base_link"/>
   <arg name="global_frame_id" default="map"/>
-  <arg name="joy_config"      default="xbox" />
+  <arg name="joy_config"      default="xbox"/>
 
   <!-- Navigation parameters
     - nav_mode = [localization | mapping]
-    - nav_algo = [amcl | lama]       if (nav_mode == localization)
-    - nav_algo = [hector | lama]     if (nav_mode == mapping)
-    - nav_map = MAP_NAME {files saved in ../assets/MAP_NAME.yaml}
+    - if (nav_mode == localization)
+      * nav_algo = [amcl | lama]
+      * nav_localization_static_map = /absolute/path/to/map.yaml
+    - if (nav_mode == mapping)
+      * nav_algo = [hector | lama | gmapping]
   -->
-  <arg name="nav_mode" default="localization" />
-  <arg name="nav_algo" default="amcl" />
-  <arg name="nav_map"  default="map_box2_v2" />
+  <arg name="nav_mode" default="mapping"/>
+  <arg name="nav_algo" default="hector"/>
+  <arg name="nav_localization_static_map" default="$(find swd_starter_kit_bringup)/assets/map_box2_v2.yaml"/>
 
   <!-- SWD ROS Controllers (diff-drive) -->
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
@@ -64,8 +66,8 @@
   <!-- Load map to be used for localization -->
   <group if="$(eval arg('nav_mode') == 'localization')">
     <node pkg="map_server" name="map_server" type="map_server"
-          args="$(find swd_starter_kit_bringup)/assets/$(arg nav_map).yaml">
-      <param name="frame_id" value="map" />
+          args="$(arg nav_localization_static_map)">
+      <param name="frame_id" value="$(arg global_frame_id)" />
     </node>
   </group>
 
