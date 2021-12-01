@@ -11,7 +11,7 @@
     <arg name="sensor_ip" value="$(arg sensor_ip)" />
     <arg name="tf_prefix" value="$(arg prefix)" />
 
-    <remap from="$(arg prefix)/scan" to="/scan_raw" />
+    <remap from="$(arg prefix)/scan" to="$(arg prefix)/scan_raw" />
   </include>
 
   <node pkg="tf" type="static_transform_publisher" name="laser_broadcaster" args="0 0 0 0 0 0 base_link laser_1_mount_link 100"/>
