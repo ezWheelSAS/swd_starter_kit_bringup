@@ -2,17 +2,19 @@
 
 <launch>
   <!-- Default values for arguments -->
-  <arg name="master_ip"       default="10.0.0.1"/>
+  <arg name="master_ip"        default="10.0.0.1"/>
   <!-- lidar_sensor = [idec_se2l | sick_nanoscan3 | pilz_psen] -->
-  <arg name="lidar_sensor"    default="idec_se2l"/>
-  <arg name="lidar_sensor_ip" default="10.0.0.5"/>
-  <arg name="scan_prefix"     default="laser_1"/>
-  <arg name="scan_topic"      default="/$(arg scan_prefix)/scan"/>
-  <arg name="scan_frame_id"   default="$(arg scan_prefix)"/>
-  <arg name="odom_frame_id"   default="odom"/>
-  <arg name="base_frame_id"   default="base_link"/>
-  <arg name="global_frame_id" default="map"/>
-  <arg name="joy_config"      default="xbox"/>
+  <arg name="lidar_sensor"     default="idec_se2l"/>
+  <arg name="lidar_sensor_ip"  default="10.0.0.5"/>
+  <arg name="scan_prefix"      default="laser_1"/>
+  <arg name="scan_topic"       default="/$(arg scan_prefix)/scan"/>
+  <arg name="scan_frame_id"    default="$(arg scan_prefix)"/>
+  <arg name="odom_frame_id"    default="odom"/>
+  <arg name="base_frame_id"    default="base_link"/>
+  <arg name="global_frame_id"  default="map"/>
+  <arg name="joy_config"       default="xbox"/>
+  <arg name="use_cmd_vel_mux"  default="true"/>
+  <arg name="use_laser_filter" default="true"/>
 
   <!-- Navigation parameters
     - nav_mode = [localization | mapping]
@@ -30,7 +32,7 @@
   <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
 
   <!-- Filter LiDAR ranges -->
-  <include file="$(dirname)/laser_filter.launch">
+  <include file="$(dirname)/laser_filter.launch" if="$(arg use_laser_filter)">
     <arg name="scan_prefix" value="$(arg scan_prefix)"/>
   </include>
 
@@ -39,6 +41,10 @@
     <arg name="sensor_ip" value="$(arg lidar_sensor_ip)" />
     <arg name="master_ip" value="$(arg master_ip)" />
     <arg name="prefix"    value="$(arg scan_prefix)" />
+
+    <!-- When laser_filter is disabled, map the scan_raw to scan, which will be
+         used by navigation nodes -->
+    <remap from="$(arg prefix)/scan_raw" to="$(arg prefix)/scan" unless="$(arg use_laser_filter)" />
   </include>
 
   <!--
@@ -48,6 +54,7 @@
         This mode supports two algotithms (nav_algo argument):
         - lama: to uses the IRIS LAMA SLAM
         - hector: to use hector_mapping
+        - gmapping: to use slam_gmapping
 
       - localization: A mode which provides localization for a robot in a known map.
         This mode supports the following algorithms (nav_algo argument):
@@ -93,14 +100,21 @@
     <param name="scale_angular" value="0.7" />
     <param name="scale_linear_turbo" value="1.3" />
     <param name="scale_angular_turbo" value="1.4" />
-    <remap from="/cmd_vel" to="/joy_cmd_vel" />
+
+    <!-- When use_cmd_vel_mux==true, the teleop_twist_joy output is connected to the mux's default input -->
+    <remap from="/cmd_vel" to="/joy_cmd_vel" if="$(arg use_cmd_vel_mux)" />
+    <!-- Otherwise, the teleop_twist_joy is connected directly to the
+         controller's velocity command input /swd_diff_drive_controller/cmd_vel -->
+    <remap from="/cmd_vel" to="/swd_diff_drive_controller/cmd_vel" unless="$(arg use_cmd_vel_mux)" />
   </node>
 
-  <!-- Create a mux for cmd_vel -->
-  <node pkg="topic_tools" name="mux_cmd_vel" type="mux"
-        args="/swd_diff_drive_controller/cmd_vel /joy_cmd_vel /key_cmd_vel /remote_cmd_vel /nav_cmd_vel" >
-    <param name="mux" value="mux_cmd_vel" />
-  </node>
+  <!-- Create a mux for cmd_vel if enabled -->
+  <group if="$(arg use_cmd_vel_mux)">
+    <node pkg="topic_tools" name="mux_cmd_vel" type="mux"
+          args="/swd_diff_drive_controller/cmd_vel /joy_cmd_vel /key_cmd_vel /remote_cmd_vel /nav_cmd_vel" >
+      <param name="mux" value="mux_cmd_vel" />
+    </node>
+  </group>
 
   <!-- Robot manager -->
   <node pkg="swd_robot_manager" name="robot_manager" type="robot_manager" />
