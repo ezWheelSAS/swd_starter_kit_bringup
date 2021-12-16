@@ -124,8 +124,8 @@
 
   <!-- Republish Pose from TF tree -->
   <node pkg="swd_robot_manager" name="pose_from_tf" type="pose_from_tf">
-    <param name="base_frame" value="base_link" />
-    <param name="ref_frame" value="map" />
+    <param name="base_frame" value="$(arg base_frame_id)" />
+    <param name="ref_frame" value="$(arg global_frame_id)" />
     <param name="publish_rate" value="20.0" />
     <param name="topic_name" value="/pose_from_tf" />
   </node>
