@@ -19,7 +19,8 @@ Starter Kit.
   the LiDAR driver.
 - `scan_prefix` (default `"laser_1"`): A prefix which will be used for LiDAR
   topics.
-- `joy_config` (default `"xbox"`): A config parameter used with the `joy/joy_node`.
+- `joy_config` (default `"xbox"`): A config parameter used with the `joy/joy_node`,
+  used only when `enable_joystick==true`.
 
 ## Global arguments
 
@@ -28,14 +29,16 @@ Starter Kit.
 - `odom_frame_id` (default `"odom"`): The odometry frame ID.
 - `base_frame_id` (default `"base_link"`): The moving base frame ID.
 - `global_frame_id` (default `"map"`): The global map frame ID.
-- `websocket` (default `true`): Use the `rosbridge_server/rosbridge_websocket` and
+- `enable_websocket` (default `true`): Use the `rosbridge_server/rosbridge_websocket` and
   `tf2_web_republisher/tf2_web_republisher` to route ROS messages to the web UI.
+- `enable_joystick` (default `true`): Enable joystick support, uses `joy/joy_node` and
+  `teleop_twist_joy/teleop_node`.
 
 ## Control/filtering arguments
 
-- `use_cmd_vel_mux` (default `"true"`): A boolean parameter to enable the
+- `enable_cmd_vel_mux` (default `"true"`): A boolean parameter to enable the
   multiplexer on the controller's `cmd_vel` input.
-- `use_laser_filter` (default `"true"`): A boolean parameter to enable the
+- `enable_laser_filter` (default `"true"`): A boolean parameter to enable the
   `laser_filters/scan_to_scan_filter_chain` configuration.
 
 ## Navigation mode arguments
@@ -70,7 +73,11 @@ The package contains configurations for the following nodes:
 - `swd_robot_manager/pose_from_tf` is used to build a
   `geometry_msgs/PoseStamped` message from the TF tree (technically, applies the
   localization/SLAM `odom->map` drift correction to the odometry's `base_link->odom`).
-- `topic_tools/mux` is used when `use_cmd_vel_mux==true` to implement a
+- `rosbridge_server/rosbridge_websocket` and `tf2_web_republisher/tf2_web_republisher` 
+   when `enable_websocket==true`.
+- `joy/joy_node` and `teleop_twist_joy/teleop_node` are used when `enable_joystick==true`, 
+  enables the usage of an USB joystick. 
+- `topic_tools/mux` is used when `enable_cmd_vel_mux==true` to implement a
   multiplexer (named `mux_cmd_vel`) in the ROS graph, the output is a
   `geometry_msgs/Twist` message linked the differential drive velocity control topic
   `swd_diff_drive_controller/cmd_vel`. The node takes multiple topics as input,
@@ -88,7 +95,7 @@ The package contains configurations for the following nodes:
 - `psen_scan_v2/psen_scan_v2_node` when `lidar_sensor=='pilz_psen'`.
 - `sick_safetyscanners/sick_safetyscanners_node` when `lidar_sensor=='sick_nanoscan3'`.
 - `laser_filters/scan_to_scan_filter_chain` is used when
-  `use_laser_filter==true` to filter the LiDAR measurements, the current
+  `enable_laser_filter==true` to filter the LiDAR measurements, the current
   configuration set ranges to be in $-\pi/2$ to $\pi/2$.
 - `hector_mapping/hector_mapping` when `nav_mode=='mapping'` and `nav_algo=='hector'`.
 - `gmapping/slam_gmapping` when `nav_mode=='mapping'` and `nav_algo=='gmapping'`.
@@ -96,8 +103,6 @@ The package contains configurations for the following nodes:
 - `iris_lama_ros/loc2d_ros` when `nav_mode=='localization'` and `nav_algo=='lama'`.
 - `amcl/amcl` when `nav_mode=='localization'` and `nav_algo=='amcl'`.
 - `tf/static_transform_publisher` is used to publish static TFs for the LiDAR sensors.
-- `rosbridge_server/rosbridge_websocket` and `tf2_web_republisher/tf2_web_republisher` 
-   when `websocket==true`
 
 # Usage with the `ezw-ros-bringup` Systemd service
 
@@ -109,11 +114,11 @@ with the default arguments, however, if you want to modify the arguments, you ca
 create the special configuration file `~/.swd_ros_env` and set the
 `SWD_BRINGUP_LAUNCH_FILE_ARGS` to the desired list of arguments, for example, 
 if we want to launch the `starter_kit.launch` with arguments `nav_mode:=localization`, 
-`nav_algo:=amcl`, `use_laser_filter:=false` and `use_cmd_vel_mux:=false`, we can add
+`nav_algo:=amcl`, `enable_laser_filter:=false` and `enable_cmd_vel_mux:=false`, we can add
 the following line to `~/.swd_ros_env`:
 
 ``` shell
-SWD_BRINGUP_LAUNCH_FILE_ARGS=("nav_mode:=localization" "nav_algo:=amcl" "use_laser_filter:=false" "use_cmd_vel_mux:=false")
+SWD_BRINGUP_LAUNCH_FILE_ARGS=("nav_mode:=localization" "nav_algo:=amcl" "enable_laser_filter:=false" "enable_cmd_vel_mux:=false")
 ```
 
 Other options can be set in the `~/.swd_ros_env`, by default, the service will
