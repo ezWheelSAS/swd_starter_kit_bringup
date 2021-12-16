@@ -28,6 +28,8 @@ Starter Kit.
 - `odom_frame_id` (default `"odom"`): The odometry frame ID.
 - `base_frame_id` (default `"base_link"`): The moving base frame ID.
 - `global_frame_id` (default `"map"`): The global map frame ID.
+- `websocket` (default `true`): Use the `rosbridge_server/rosbridge_websocket` and
+  `tf2_web_republisher/tf2_web_republisher` to route ROS messages to the web UI.
 
 ## Control/filtering arguments
 
@@ -93,6 +95,8 @@ The package contains configurations for the following nodes:
 - `iris_lama_ros/loc2d_ros` when `nav_mode=='localization'` and `nav_algo=='lama'`.
 - `amcl/amcl` when `nav_mode=='localization'` and `nav_algo=='amcl'`.
 - `tf/static_transform_publisher` is used to publish static TFs for the LiDAR sensors.
+- `rosbridge_server/rosbridge_websocket` and `tf2_web_republisher/tf2_web_republisher` 
+   when `websocket==true`
 
 # Usage with the `ezw-ros-bringup` Systemd service
 

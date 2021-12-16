@@ -15,6 +15,7 @@
   <arg name="joy_config"       default="xbox"/>
   <arg name="use_cmd_vel_mux"  default="true"/>
   <arg name="use_laser_filter" default="true"/>
+  <arg name="websocket"        default="true" />
 
   <!-- Navigation parameters
     - nav_mode = [localization | mapping]
@@ -78,12 +79,14 @@
   </group>
 
   <!-- Websocket bridge (for HMI) -->
-  <node pkg="rosbridge_server" name="rosbridge_websocket" type="rosbridge_websocket">
-    <param name="address" value="$(arg master_ip)" />
-    <param name="use_compression" value="true" />
-  </node>
+  <group if="$(arg websocket)">
+    <node pkg="rosbridge_server" name="rosbridge_websocket" type="rosbridge_websocket">
+      <param name="address" value="$(arg master_ip)" />
+      <param name="use_compression" value="true" />
+    </node>
 
-  <node pkg="tf2_web_republisher" name="tf2_web_republisher" type="tf2_web_republisher" />
+    <node pkg="tf2_web_republisher" name="tf2_web_republisher" type="tf2_web_republisher" />
+  </group>
 
   <!-- Joystick + teleop -->
   <node pkg="joy" name="xbox_joystick" type="joy_node">
