@@ -45,7 +45,8 @@ Starter Kit.
   `localization`. In the `mapping` mode, a SLAM algorithm is used to build a map
   of the environment, this map can then be saved as a static map (using
   `map_server/map_saver`). Then, we can launch the robot in the localization
-  mode to localize itself in the map.
+  mode to localize itself in the map. If you do not need to launch a localization
+  or mapping stack, set `nav_mode` is set to `none`.
 - `nav_algo` (default `"hector"`): The algorithm to be used for the selected
   mode, it accepts [`hector`, `lama` or `gmapping`] when `nav_mode=='mapping'`,
   and [`amcl` or `lama`] when `nav_mode=='localization'`, note that for

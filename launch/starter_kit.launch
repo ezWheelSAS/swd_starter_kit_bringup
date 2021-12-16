@@ -18,7 +18,7 @@
   <arg name="websocket"        default="true" />
 
   <!-- Navigation parameters
-    - nav_mode = [localization | mapping]
+    - nav_mode = [localization | mapping | none]
     - if (nav_mode == localization)
       * nav_algo = [amcl | lama]
       * nav_localization_static_map = /absolute/path/to/map.yaml
@@ -62,7 +62,7 @@
         - amcl: to use the Adaptive Monte Carlo Localization (AMCL)
         - lama: to use the loc2d_ros from LAMA SLAM package
   -->
-  <include file="$(dirname)/$(arg nav_mode)_$(arg nav_algo).launch">
+  <include file="$(dirname)/$(arg nav_mode)_$(arg nav_algo).launch" unless="$(eval arg('nav_mode') == 'none')">
     <arg name="scan_topic"       value="$(arg scan_topic)"/>
     <arg name="odom_frame_id"    value="$(arg odom_frame_id)"/>
     <arg name="base_frame_id"    value="$(arg base_frame_id)"/>
