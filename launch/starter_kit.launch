@@ -12,6 +12,7 @@
   <arg name="odom_frame_id"        default="odom"/>
   <arg name="base_frame_id"        default="base_link"/>
   <arg name="global_frame_id"      default="map"/>
+  <arg name="baseline_m"           default="0.485"/>
   <arg name="joy_config"           default="xbox"/>
   <arg name="enable_cmd_vel_mux"   default="true"/>
   <arg name="enable_laser_filter"  default="true"/>
@@ -33,7 +34,11 @@
   <arg name="nav_localization_static_map" default="$(find swd_starter_kit_bringup)/assets/map_box2_v2.yaml"/>
 
   <!-- SWD ROS Controllers (diff-drive) -->
-  <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch"/>
+  <include file="$(find swd_ros_controllers)/launch/swd_diff_drive_controller.launch">
+    <arg name="baseline_m"  value="$(arg baseline_m)"/>
+    <arg name="base_frame"  value="$(arg base_frame_id)"/>
+    <arg name="odom_frame"  value="$(arg odom_frame_id)"/>
+  </include>
 
   <!-- Filter LiDAR ranges -->
   <include file="$(dirname)/laser_filter.launch" if="$(arg enable_laser_filter)">
