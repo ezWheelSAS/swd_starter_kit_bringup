@@ -5,7 +5,7 @@
   <description>The swd_starter_kit_bringup package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <maintainer email="g.mermet@ez-wheel.com">Gregory MERMET</maintainer>
+  <maintainer email="gregory.mermet@idec.com">Gregory MERMET</maintainer>
   <maintainer email="a.bougouffa@ez-wheel.com">Abdelhak BOUGOUFFA</maintainer>
 
   <!-- One license tag required, multiple allowed, one license per tag -->
