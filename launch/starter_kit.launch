@@ -141,10 +141,7 @@
   </node>
 
   <!-- Robot state publisher, using the URDF model -->
-  <!--
-  <node name="robot_state_publisher" pkg="robot_state_publisher"
-        type="robot_state_publisher" >
-    <param name="robot_description" textfile="$(find swd_starter_kit_description)/urdf/swd_starter_kit.urdf" />
-  </node>
-  -->
+  <param name="robot_description" textfile="$(find swd_starter_kit_description)/urdf/swd_starter_kit.urdf" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
 </launch>
